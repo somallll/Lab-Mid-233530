@@ -1,0 +1,234 @@
+using System;
+using System.Collections.Generic;
+
+namespace StudentClubManagement
+{
+    public class Society
+    {
+        public string Name { get; set; }
+        public string TeamLeader { get; set; }
+        public string AssistantTeamLeader { get; set; }
+        public List<Activity> Activities { get; set; }
+
+        public Society(string name, string teamLeader, string assistantTeamLeader)
+        {
+            Name = name;
+            TeamLeader = teamLeader;
+            AssistantTeamLeader = assistantTeamLeader;
+            Activities = new List<Activity>();
+        }
+
+        public void RegisterActivity(Activity activity)
+        {
+            Activities.Add(activity);
+        }
+    }
+
+    public class FundedSociety : Society
+    {
+        public decimal FundingAmount { get; set; }
+
+        public FundedSociety(string name, string teamLeader, string assistantTeamLeader, decimal fundingAmount)
+            : base(name, teamLeader, assistantTeamLeader)
+        {
+            FundingAmount = fundingAmount;
+        }
+    }
+
+    public class NonFundedSociety : Society
+    {
+        public NonFundedSociety(string name, string teamLeader, string assistantTeamLeader)
+            : base(name, teamLeader, assistantTeamLeader)
+        {
+        }
+    }
+
+    public class Activity
+    {
+        public string ActivityName { get; set; }
+        public DateTime Date { get; set; }
+
+        public Activity(string activityName, DateTime date)
+        {
+            ActivityName = activityName;
+            Date = date;
+        }
+    }
+
+    public class StudentClub
+    {
+        public List<Society> Societies { get; set; }
+
+        public StudentClub()
+        {
+            Societies = new List<Society>();
+        }
+
+        public void AddSociety(Society society)
+        {
+            Societies.Add(society);
+        }
+
+        public void DisplayFundingInfo()
+        {
+            Console.WriteLine("\nSociety Funding Information:");
+            foreach (var society in Societies)
+            {
+                if (society is FundedSociety fundedSociety)
+                {
+                    Console.WriteLine($"Society: {fundedSociety.Name}, Team Leader: {fundedSociety.TeamLeader}, Funding: ${fundedSociety.FundingAmount}");
+                }
+                else
+                {
+                    Console.WriteLine($"Society: {society.Name}, Team Leader: {society.TeamLeader}, Funding: Not Applicable");
+                }
+            }
+        }
+
+        public void DisplayEvents()
+        {
+            Console.WriteLine("\nSociety Events Information:");
+            foreach (var society in Societies)
+            {
+                Console.WriteLine($"Society: {society.Name}");
+                foreach (var activity in society.Activities)
+                {
+                    Console.WriteLine($"  Event: {activity.ActivityName}, Date: {activity.Date.ToShortDateString()}");
+                }
+            }
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            StudentClub studentClub = new StudentClub();
+
+            while (true)
+            {
+                Console.WriteLine("\n1. Register Society");
+                Console.WriteLine("2. Allocate Funding to Societies");
+                Console.WriteLine("3. Register an Event for a Society");
+                Console.WriteLine("4. Display Society Funding Information");
+                Console.WriteLine("5. Display Events for a Society");
+                Console.WriteLine("6. Exit");
+                Console.Write("Choose an option: ");
+
+                string choice = Console.ReadLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        RegisterSociety(studentClub);
+                        break;
+                    case "2":
+                        AllocateFunding(studentClub);
+                        break;
+                    case "3":
+                        RegisterEvent(studentClub);
+                        break;
+                    case "4":
+                        studentClub.DisplayFundingInfo();
+                        break;
+                    case "5":
+                        studentClub.DisplayEvents();
+                        break;
+                    case "6":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid option. Please try again.");
+                        break;
+                }
+            }
+        }
+
+        static void RegisterSociety(StudentClub studentClub)
+        {
+            Console.Write("Enter Society Name: ");
+            string name = Console.ReadLine();
+            Console.Write("Enter Team Leader Name: ");
+            string teamLeader = Console.ReadLine();
+            Console.Write("Enter Assistant Team Leader Name: ");
+            string assistantTeamLeader = Console.ReadLine();
+            Console.Write("Is this a funded society? (yes/no): ");
+            string isFunded = Console.ReadLine();
+
+            if (isFunded?.ToLower() == "yes")
+            {
+                Console.Write("Enter Funding Amount: ");
+                if (decimal.TryParse(Console.ReadLine(), out decimal fundingAmount))
+                {
+                    studentClub.AddSociety(new FundedSociety(name, teamLeader, assistantTeamLeader, fundingAmount));
+                }
+                else
+                {
+                    Console.WriteLine("Invalid funding amount.");
+                }
+            }
+            else
+            {
+                studentClub.AddSociety(new NonFundedSociety(name, teamLeader, assistantTeamLeader));
+            }
+        }
+
+        static void AllocateFunding(StudentClub studentClub)
+        {
+            Console.Write("Enter Society Name: ");
+            string name = Console.ReadLine();
+            Console.Write("Enter Funding Amount: ");
+
+            if (decimal.TryParse(Console.ReadLine(), out decimal fundingAmount))
+            {
+                foreach (var society in studentClub.Societies)
+                {
+                    if (society.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (society is FundedSociety fundedSociety)
+                        {
+                            fundedSociety.FundingAmount = fundingAmount;
+                        }
+                        else
+                        {
+                            studentClub.Societies.Remove(society);
+                            studentClub.AddSociety(new FundedSociety(name, society.TeamLeader, society.AssistantTeamLeader, fundingAmount));
+                        }
+                        return;
+                    }
+                }
+                Console.WriteLine("Society not found.");
+            }
+            else
+            {
+                Console.WriteLine("Invalid funding amount.");
+            }
+        }
+
+        static void RegisterEvent(StudentClub studentClub)
+        {
+            Console.Write("Enter Society Name: ");
+            string name = Console.ReadLine();
+            Console.Write("Enter Event Name: ");
+            string eventName = Console.ReadLine();
+            Console.Write("Enter Event Date (MM/dd/yyyy): ");
+
+            if (DateTime.TryParse(Console.ReadLine(), out DateTime eventDate))
+            {
+                foreach (var society in studentClub.Societies)
+                {
+                    if (society.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        society.RegisterActivity(new Activity(eventName, eventDate));
+                        return;
+                    }
+                }
+                Console.WriteLine("Society not found.");
+            }
+            else
+            {
+                Console.WriteLine("Invalid date format.");
+            }
+        }
+    }
+}
+
