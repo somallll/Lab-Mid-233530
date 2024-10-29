@@ -1,6 +1,0 @@
-﻿Build started at 1:56 pm...
-1>------ Build started: Project: 233530 LAB MID, Configuration: Debug Any CPU ------
-1>Skipping analyzers to speed up the build. You can execute 'Build' or 'Rebuild' command to run analyzers.
-1>233530 LAB MID -> C:\Users\Hp\source\repos\233530 LAB MID\233530 LAB MID\bin\Debug\net8.0\233530 LAB MID.dll
-========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
-========== Build completed at 1:57 pm and took 16.246 seconds ==========
